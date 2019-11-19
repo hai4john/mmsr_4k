@@ -21,7 +21,7 @@ def main():
     #################
     device = torch.device('cuda')
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-    data_mode = 'Vid4'  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
+    data_mode = 'sharp_bicubic'  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
     # Vid4: SR
     # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
     #        blur (deblur-clean), blur_comp (deblur-compression).
@@ -36,7 +36,9 @@ def main():
             raise ValueError('Vid4 does not support stage 2.')
     elif data_mode == 'sharp_bicubic':
         if stage == 1:
-            model_path = '../experiments/pretrained_models/EDVR_REDS_SR_L.pth'
+            #model_path = '../experiments/pretrained_models/EDVR_REDS_SR_L.pth'
+            model_path = '../experiments/pretrained_models/EDVR_REDS_SR_M_woTSA.pth'
+            model_path = '../experiments/pretrained_models/EDVR_REDS_SR_M_woTSA.pth'
         else:
             model_path = '../experiments/pretrained_models/EDVR_REDS_SR_Stage2.pth'
     elif data_mode == 'blur_bicubic':
@@ -63,7 +65,7 @@ def main():
         N_in = 5
 
     predeblur, HR_in = False, False
-    back_RBs = 40
+    back_RBs = 10
     if data_mode == 'blur_bicubic':
         predeblur = True
     if data_mode == 'blur' or data_mode == 'blur_comp':
@@ -71,7 +73,7 @@ def main():
     if stage == 2:
         HR_in = True
         back_RBs = 20
-    model = EDVR_arch.EDVR(128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in)
+    model = EDVR_arch.EDVR(64, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in, w_TSA=False)
 
     #### dataset
     if data_mode == 'Vid4':
@@ -84,6 +86,9 @@ def main():
             test_dataset_folder = '../results/REDS-EDVR_REDS_SR_L_flipx4'
             print('You should modify the test_dataset_folder path for stage 2')
         GT_dataset_folder = '../datasets/REDS4/GT'
+
+    test_dataset_folder = '../datasets/REDS/test_x4'
+    GT_dataset_folder = '../datasets/REDS/test_gt'
 
     #### evaluation
     crop_border = 0

@@ -18,7 +18,7 @@ from models import create_model
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
     if mp.get_start_method(allow_none=True) != 'spawn':
-        mp.set_start_method('spawn')
+        mp.set_start_method('spawn', force=True)
     rank = int(os.environ['RANK'])
     num_gpus = torch.cuda.device_count()
     torch.cuda.set_device(rank % num_gpus)
